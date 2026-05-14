@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ME — Endereços CD 107</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2335;
+    --border: #2a3050;
+    --accent: #00c8ff;
+    --accent2: #ff6b2b;
+    --text: #e8ecf4;
+    --text-dim: #7a8aad;
+    --green: #1ecb7c;
+    --radius: 6px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--accent);
+  }
+  .logo span { color: var(--text-dim); font-weight: 400; font-size: 14px; margin-left: 8px; }
+
+  .header-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); }
+  .btn.primary:hover { background: #33d4ff; }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+
+  .tab {
+    padding: 12px 28px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all .15s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-pulmao.active { color: var(--accent2); border-bottom-color: var(--accent2); }
+
+  .controls {
+    padding: 16px 24px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 500px;
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+  .search {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px 9px 36px;
+    border-radius: var(--radius);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .search:focus { border-color: var(--accent); }
+
+  .badge {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .badge b { color: var(--text); }
+
+  .table-wrap {
+    padding: 0 24px 24px;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  thead th {
+    background: var(--surface2);
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  thead th:hover { color: var(--text); }
+  thead th .sort-icon { margin-left: 4px; opacity: 0.4; }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+
+  tbody tr {
+    border-bottom: 1px solid #1a1f30;
+    transition: background .1s;
+  }
+  tbody tr:hover { background: var(--surface2); }
+
+  td {
+    padding: 9px 14px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  td.ender {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+  .tab-pulmao-content td.ender { color: var(--accent2); }
+
+  td.seq {
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+
+  td.desc {
+    max-width: 400px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .status-ocupado { background: rgba(30,203,124,.15); color: var(--green); border: 1px solid rgba(30,203,124,.3); }
+  .status-bloqueado { background: rgba(255,60,60,.12); color: #ff6060; border: 1px solid rgba(255,60,60,.25); }
+  .status-inativo { background: rgba(120,130,160,.12); color: var(--text-dim); border: 1px solid var(--border); }
+
+  .empty { text-align: center; padding: 60px 0; color: var(--text-dim); font-size: 15px; }
+
+  /* Modal para upload */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px;
+    width: 500px;
+    max-width: 95vw;
+  }
+  .modal h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--accent);
+  }
+
+  .upload-group {
+    margin-bottom: 16px;
+  }
+  .upload-group label {
+    display: block;
+    font-size: 12px;
+    font-family: 'Barlow Condensed', sans-serif;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .upload-box {
+    background: var(--surface2);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s;
+    position: relative;
+  }
+  .upload-box:hover, .upload-box.dragover { border-color: var(--accent); }
+  .upload-box input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .upload-box .file-name {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .upload-box .file-name.loaded { color: var(--green); }
+
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  @media (max-width: 600px) {
+    header { padding: 10px 14px; }
+    .controls { padding: 12px 14px; }
+    .table-wrap { padding: 0 14px 14px; }
+    td, th { padding: 8px 10px; }
+  }
+
+  /* ===== IMPRESSÃO ===== */
+  @media print {
+    @page { margin: 15mm 12mm; size: A4 landscape; }
+
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+    body {
+      background: #fff !important;
+      color: #111 !important;
+      font-size: 11px;
+    }
+
+    header, .tabs, .controls, .modal-overlay { display: none !important; }
+
+    .tab-content { display: none !important; }
+    .tab-content.active { display: block !important; }
+
+    .print-header {
+      display: flex !important;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 2px solid #111;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+    }
+    .print-header-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: #111;
+      letter-spacing: 1px;
+    }
+    .print-header-sub {
+      font-size: 11px;
+      color: #555;
+    }
+
+    .table-wrap {
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 10px; }
+
+    thead th {
+      background: #1e2335 !important;
+      color: #fff !important;
+      font-size: 9px;
+      letter-spacing: 1px;
+      padding: 6px 8px !important;
+      border: none !important;
+      position: static !important;
+      cursor: default;
+    }
+
+    tbody tr { border-bottom: 1px solid #ddd !important; }
+    tbody tr:nth-child(even) { background: #f5f7fa !important; }
+    tbody tr:hover { background: inherit !important; }
+
+    td {
+      padding: 5px 8px !important;
+      color: #111 !important;
+      white-space: normal !important;
+    }
+    td.ender {
+      color: #0066aa !important;
+      font-weight: 600;
+    }
+    td.seq { color: #444 !important; }
+    td.desc { max-width: none !important; }
+
+    .status-badge {
+      border: 1px solid #999 !important;
+      color: #111 !important;
+      background: #eee !important;
+      padding: 1px 6px !important;
+    }
+    .status-ocupado { background: #d4f5e4 !important; color: #186 !important; border-color: #186 !important; }
+    .status-bloqueado { background: #fde8e8 !important; color: #c00 !important; border-color: #c00 !important; }
+    .status-inativo { background: #eee !important; color: #666 !important; border-color: #999 !important; }
+
+    thead th .sort-icon { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ME — CD 107 <span>Endereços de Produto</span></div>
+  <div class="header-right">
+    <button class="btn" onclick="exportPDF()">⬇ Salvar PDF</button>
+    <button class="btn" onclick="openModal()">⬆ Atualizar Arquivos</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" id="tab-apanha" onclick="switchTab('apanha')">APANHA</div>
+  <div class="tab tab-pulmao" id="tab-pulmao" onclick="switchTab('pulmao')">PULMÃO</div>
+</div>
+
+<div class="controls">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search" id="search-input" type="text" placeholder="Buscar por endereço, código ou descrição..." oninput="applyFilter()">
+  </div>
+  <div class="badge" id="count-badge"><b>—</b> registros</div>
+</div>
+
+<div id="content-apanha" class="tab-content active">
+  <div class="print-header" style="display:none">
+    <div class="print-header-title">APANHA — ME CD 107</div>
+    <div class="print-header-sub" id="print-info-apanha"></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortTable('apanha','ENDER')">ENDEREÇO <span class="sort-icon" id="sort-apanha-ENDER">↕</span></th>
+          <th onclick="sortTable('apanha','SEQPRODUTO')">COD. PRODUTO <span class="sort-icon" id="sort-apanha-SEQPRODUTO">↕</span></th>
+          <th onclick="sortTable('apanha','DESCCOMPLETA')">DESCRIÇÃO <span class="sort-icon" id="sort-apanha-DESCCOMPLETA">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="tbody-apanha"></tbody>
+    </table>
+    <div class="empty" id="empty-apanha" style="display:none">Nenhum item encontrado.</div>
+  </div>
+</div>
+
+<div id="content-pulmao" class="tab-content tab-pulmao-content">
+  <div class="print-header" style="display:none">
+    <div class="print-header-title">PULMÃO — ME CD 107</div>
+    <div class="print-header-sub" id="print-info-pulmao"></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="sortTable('pulmao','ENDER')">ENDEREÇO <span class="sort-icon" id="sort-pulmao-ENDER">↕</span></th>
+          <th onclick="sortTable('pulmao','SEQPRODUTO')">COD. PRODUTO <span class="sort-icon" id="sort-pulmao-SEQPRODUTO">↕</span></th>
+          <th onclick="sortTable('pulmao','DESCRICAO')">DESCRIÇÃO <span class="sort-icon" id="sort-pulmao-DESCRICAO">↕</span></th>
+          <th onclick="sortTable('pulmao','STATUS')">STATUS <span class="sort-icon" id="sort-pulmao-STATUS">↕</span></th>
+        </tr>
+      </thead>
+      <tbody id="tbody-pulmao"></tbody>
+    </table>
+    <div class="empty" id="empty-pulmao" style="display:none">Nenhum item encontrado.</div>
+  </div>
+</div>
+
+<!-- Modal de atualização -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h2>⬆ Atualizar Arquivos</h2>
+    <p style="font-size:13px;color:var(--text-dim);margin-bottom:18px;">Envie os arquivos que deseja atualizar. Caso não envie um deles, mantém o dados atuais.</p>
+
+    <div class="upload-group">
+      <label>Ruas_fixas.txt (Apanha)</label>
+      <div class="upload-box" id="box-ruas">
+        <input type="file" accept=".txt,.csv" onchange="handleFile('ruas', this)">
+        <div>📄 Clique ou arraste o arquivo <b>Ruas_fixas.txt</b></div>
+        <div class="file-name" id="fname-ruas">Nenhum arquivo selecionado</div>
+      </div>
+    </div>
+
+    <div class="upload-group">
+      <label>Estoque_pulmão.txt (Pulmão)</label>
+      <div class="upload-box" id="box-pulmao">
+        <input type="file" accept=".txt,.csv" onchange="handleFile('pulmao', this)">
+        <div>📄 Clique ou arraste o arquivo <b>Estoque_pulmão.txt</b></div>
+        <div class="file-name" id="fname-pulmao">Nenhum arquivo selecionado</div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">Cancelar</button>
+      <button class="btn primary" onclick="processFiles()">Processar e Atualizar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== DADOS EMBUTIDOS ==========
+const EMBEDDED_DATA = {"apanha":[{"ENDER":"01.004.011.01.00001","SEQPRODUTO":112160,"DESCCOMPLETA":"ME ETIQUETA GONDULA 37X70MM"},{"ENDER":"01.004.012.01.00001","SEQPRODUTO":70596,"DESCCOMPLETA":"EMB SUSHI MENOR GO905"},{"ENDER":"01.004.013.01.00001","SEQPRODUTO":102628,"DESCCOMPLETA":"EMB FILME FRANGO"},{"ENDER":"01.004.014.01.00001","SEQPRODUTO":98536,"DESCCOMPLETA":"EMB DOCES/PROFTEROLIS SIMILAR G10"},{"ENDER":"01.004.015.01.00001","SEQPRODUTO":102598,"DESCCOMPLETA":"EMB FILME RK67"},{"ENDER":"01.004.016.01.00001","SEQPRODUTO":97091,"DESCCOMPLETA":"EMB SACO ESTRELA 34X50 C/815"},{"ENDER":"01.004.017.01.00001","SEQPRODUTO":19354,"DESCCOMPLETA":"EMB MARMITEX PEQUENA MC300"},{"ENDER":"01.004.018.01.00001","SEQPRODUTO":16866,"DESCCOMPLETA":"ME ETIQ 98X35 ADES COUCHE BR C1000"},{"ENDER":"01.004.019.01.00001","SEQPRODUTO":68520,"DESCCOMPLETA":"EMB DISCO ISOPOR PIZZA"},{"ENDER":"01.004.020.01.00001","SEQPRODUTO":115618,"DESCCOMPLETA":"ML DESINFETANTE FRUTAS/VERD (HIPPOVERD)"},{"ENDER":"01.004.021.01.00001","SEQPRODUTO":8724,"DESCCOMPLETA":"EMB FILME PVC 38 X 10 MIC"},{"ENDER":"01.004.022.01.00001","SEQPRODUTO":10202,"DESCCOMPLETA":"EMB BANDEJA ACOUGUE ABS 10 PRETA"},{"ENDER":"01.004.023.01.00001","SEQPRODUTO":101504,"DESCCOMPLETA":"EMB GAST PEQUENA C/FILME RK67"},{"ENDER":"01.004.024.01.00001","SEQPRODUTO":11051,"DESCCOMPLETA":"EMB FOLHAS FRIOS PP 35X35"},{"ENDER":"01.004.025.01.00001","SEQPRODUTO":28483,"DESCCOMPLETA":"EMB BANDEJA ACOUGUE PROF N101 PRETA"},{"ENDER":"01.004.026.01.00001","SEQPRODUTO":70054,"DESCCOMPLETA":"EMB SUSHI MAIOR GO915"},{"ENDER":"01.004.027.01.00001","SEQPRODUTO":10211,"DESCCOMPLETA":"EMB BANDEJA ACOUGUE ABS 02 PRETA"},{"ENDER":"01.004.028.01.00001","SEQPRODUTO":96164,"DESCCOMPLETA":"ME BOBINA PDV TERM 80X80 STOK"},{"ENDER":"01.004.029.01.00001","SEQPRODUTO":118461,"DESCCOMPLETA":"ML SABONETE LIQUIDO KALYCLEAN H130 ERVA DOCE"},{"ENDER":"01.004.031.01.00001","SEQPRODUTO":75709,"DESCCOMPLETA":"EMB PIZZA CAIXA PAPELAO"},{"ENDER":"01.004.032.01.00001","SEQPRODUTO":115656,"DESCCOMPLETA":"ML ANTISSEPTICO P/MAOS SPUMFLOC N SABONETE"},{"ENDER":"01.004.033.01.00001","SEQPRODUTO":119028,"DESCCOMPLETA":"ML DETERGENTE CONCENTRADO DX140 5L"},{"ENDER":"01.004.034.01.00001","SEQPRODUTO":11054,"DESCCOMPLETA":"EMB SACO P/FATIADOS 16X28"},{"ENDER":"01.004.035.01.00001","SEQPRODUTO":95441,"DESCCOMPLETA":"EMB PIZZA 30CM NP210"},{"ENDER":"01.004.036.01.00001","SEQPRODUTO":106596,"DESCCOMPLETA":"ME ETIQUETA 100X63 COUCHE VERD"},{"ENDER":"01.004.037.01.00001","SEQPRODUTO":36097,"DESCCOMPLETA":"EMB MARMITEX MEDIA 104G"},{"ENDER":"01.004.038.01.00001","SEQPRODUTO":119041,"DESCCOMPLETA":"ML DETERG NEUTRO KALYCLEAN N 7 22 KALYCLEAN N 722"},{"ENDER":"01.004.039.01.00001","SEQPRODUTO":10239,"DESCCOMPLETA":"EMB BANDEJA ACOUGUE ABS 04 PRETA"},{"ENDER":"01.004.040.01.00001","SEQPRODUTO":8695,"DESCCOMPLETA":"EMB RETANGULAR PADARIA GA20"},{"ENDER":"01.004.041.01.00001","SEQPRODUTO":10183,"DESCCOMPLETA":"EMB BANDEJA ACOUGUE PROF N101 ROSA SUINO"},{"ENDER":"01.004.043.01.00001","SEQPRODUTO":8572,"DESCCOMPLETA":"EMB BANDEJA 2S PADARIA BRANCA"},{"ENDER":"01.004.044.01.00001","SEQPRODUTO":101505,"DESCCOMPLETA":"EMB FRANGO C/FILME D120"},{"ENDER":"01.004.045.01.00001","SEQPRODUTO":11087,"DESCCOMPLETA":"EMB SACO FURADINHO PAO 28X40"},{"ENDER":"01.004.046.01.00001","SEQPRODUTO":110365,"DESCCOMPLETA":"ME ETIQUETA BALANCA 60X130MM TERMICA"},{"ENDER":"01.004.047.01.00001","SEQPRODUTO":110671,"DESCCOMPLETA":"EMB SACO ESTRELA 34X50 VALG COM 815"},{"ENDER":"01.004.048.01.00001","SEQPRODUTO":116184,"DESCCOMPLETA":"ML AROMATIZANTE EKKOA BAMBOO DREAMS"},{"ENDER":"01.004.053.01.00001","SEQPRODUTO":115657,"DESCCOMPLETA":"ML DETERGENTE INDUSTRIAL (PN 2000) DETERGENTE"},{"ENDER":"01.004.054.01.00001","SEQPRODUTO":115617,"DESCCOMPLETA":"ML DETERGENTE CLORADO (DOMESTICUS) CLORADO"},{"ENDER":"01.004.055.01.00001","SEQPRODUTO":101522,"DESCCOMPLETA":"EMB GAST MEDIA C/FILME K151"},{"ENDER":"01.004.059.01.00001","SEQPRODUTO":11039,"DESCCOMPLETA":"EMB BOBINA PAPEL PRESENTE 60 CM"},{"ENDER":"01.004.060.01.00001","SEQPRODUTO":109863,"DESCCOMPLETA":"EMB CUCA BANDEJA 750ML"},{"ENDER":"01.004.061.01.00001","SEQPRODUTO":119030,"DESCCOMPLETA":"ML DETERGENTE PO POWER CHLOR 5KG"},{"ENDER":"01.004.062.01.00001","SEQPRODUTO":43619,"DESCCOMPLETA":"ME BOBINA CALCULADORA 56X45"},{"ENDER":"01.004.064.01.00001","SEQPRODUTO":104694,"DESCCOMPLETA":"ML LIXEIRA SUPERPRO 50L BCA C/PEDAL"},{"ENDER":"01.004.065.01.00001","SEQPRODUTO":101253,"DESCCOMPLETA":"ME PORTA ETIQUETA 570X60MM DUPLA FACE"},{"ENDER":"01.004.066.01.00001","SEQPRODUTO":111175,"DESCCOMPLETA":"ME FILME LISO AMARELO UN"},{"ENDER":"01.004.071.01.00001","SEQPRODUTO":84883,"DESCCOMPLETA":"ML PASTA LIMPEZA TEK 500G"},{"ENDER":"01.004.071.02.00001","SEQPRODUTO":7842,"DESCCOMPLETA":"ML FIBRA LIMPEZA UN PESADA 9506"},{"ENDER":"01.004.072.01.00001","SEQPRODUTO":90553,"DESCCOMPLETA":"ML DESENGRAXANTE KALYKIM 5L C219"},{"ENDER":"01.004.073.01.00001","SEQPRODUTO":108694,"DESCCOMPLETA":"ME REGUA CONTENCAO 650X50X3"},{"ENDER":"01.004.073.02.00001","SEQPRODUTO":90550,"DESCCOMPLETA":"ML ALCALINO KALYKIM 10KG K510"},{"ENDER":"01.004.074.01.00001","SEQPRODUTO":101782,"DESCCOMPLETA":"ME PORTA TARJA 1000X40MM DUPLA FACE"},{"ENDER":"01.004.074.02.00001","SEQPRODUTO":99080,"DESCCOMPLETA":"ML ALCOOL LIQUIDO 5L 70° INPM INCOLOR"},{"ENDER":"01.004.075.01.00001","SEQPRODUTO":90556,"DESCCOMPLETA":"ML DESINFETANTE KALYKIM 3KG HORTI S313"},{"ENDER":"01.004.075.02.00001","SEQPRODUTO":90552,"DESCCOMPLETA":"ML DETERGENTE KALYKIM 5L LIMP PESAD CL"},{"ENDER":"01.004.076.01.00001","SEQPRODUTO":119548,"DESCCOMPLETA":"ME ETIQUETA TERM GONDULA 37X70 C/500"},{"ENDER":"01.004.076.02.00001","SEQPRODUTO":110668,"DESCCOMPLETA":"ML SACO LIXO 15L C/100"},{"ENDER":"01.004.077.01.00001","SEQPRODUTO":115652,"DESCCOMPLETA":"ML HIGIENIZADOR (MULTIFEX) HIGIENIZADOR"},{"ENDER":"01.004.077.02.00001","SEQPRODUTO":16590,"DESCCOMPLETA":"ML LUVA VINIL M C/100"},{"ENDER":"01.004.078.01.00001","SEQPRODUTO":102629,"DESCCOMPLETA":"EMB FILME K151"},{"ENDER":"01.004.078.02.00001","SEQPRODUTO":16583,"DESCCOMPLETA":"ML LUVA VINIL G C/100"},{"ENDER":"01.004.079.01.00001","SEQPRODUTO":87967,"DESCCOMPLETA":"ML LUVA LIMPEZA GERAL P"},{"ENDER":"01.004.079.02.00001","SEQPRODUTO":11079,"DESCCOMPLETA":"EMB EMBALAGEM PRESENTE 21X45"},{"ENDER":"01.004.080.01.00001","SEQPRODUTO":6435,"DESCCOMPLETA":"ML MOP UMID ALGODAO BRUXA UN"},{"ENDER":"01.004.081.02.00001","SEQPRODUTO":90554,"DESCCOMPLETA":"ML SABONETE KALYKIM 5L BACTERICIDA"},{"ENDER":"01.004.082.01.00001","SEQPRODUTO":7616,"DESCCOMPLETA":"ML ARMACAO P/ MOP PO 60CM UN"},{"ENDER":"01.004.082.02.00001","SEQPRODUTO":87968,"DESCCOMPLETA":"ML LUVA LIMPEZA GERAL G"},{"ENDER":"01.004.083.01.00001","SEQPRODUTO":57361,"DESCCOMPLETA":"ML CESTO QUADRADO C/PEDAL 15L BCO"},{"ENDER":"01.004.083.02.00001","SEQPRODUTO":7621,"DESCCOMPLETA":"ML CABO ALUM 22MM P/RODO/MOP/SU UN"},{"ENDER":"01.004.084.01.00001","SEQPRODUTO":7613,"DESCCOMPLETA":"ML REFIL MOP PO 60CM VASSOURA UN"},{"ENDER":"01.004.084.02.00001","SEQPRODUTO":17038,"DESCCOMPLETA":"ML DISPENSER TOALHA PAPEL P/CONSUM"},{"ENDER":"01.004.085.01.00001","SEQPRODUTO":7807,"DESCCOMPLETA":"ML SUPORTE EURO P/ FIBRAS UN"},{"ENDER":"01.004.085.02.00001","SEQPRODUTO":7756,"DESCCOMPLETA":"ML HASTE EURO MOP UMIDO UN"},{"ENDER":"01.004.086.01.00001","SEQPRODUTO":57164,"DESCCOMPLETA":"ML DISPENSER PAPEL HIGIE ROLAO BRC"},{"ENDER":"01.004.086.02.00001","SEQPRODUTO":69297,"DESCCOMPLETA":"ML ROLO PANO MULTIUSO C/600"},{"ENDER":"01.004.087.01.00001","SEQPRODUTO":90557,"DESCCOMPLETA":"ML LIMPA VIDRO KALYKIM 5L VD"},{"ENDER":"01.004.087.02.00001","SEQPRODUTO":90547,"DESCCOMPLETA":"ML DETERGENTE KALYKIM 5L MULTIUSO TRAD PA"},{"ENDER":"01.004.088.01.00001","SEQPRODUTO":91239,"DESCCOMPLETA":"ML CERA KALYKIM 5L MP"},{"ENDER":"01.004.088.02.00001","SEQPRODUTO":100082,"DESCCOMPLETA":"ME ETIQUETA 100X63 COUCHE AZUL"},{"ENDER":"01.004.089.01.00001","SEQPRODUTO":116459,"DESCCOMPLETA":"ML DESENGRAXANTE RAMBO MAX"},{"ENDER":"01.004.089.02.00001","SEQPRODUTO":11080,"DESCCOMPLETA":"EMB EMBALAGEM PRESENTE 30X45 C"},{"ENDER":"01.004.090.02.00001","SEQPRODUTO":13247,"DESCCOMPLETA":"ME ETIQUETA PRESENTE UN"},{"ENDER":"01.004.091.02.00001","SEQPRODUTO":17370,"DESCCOMPLETA":"ME ETIQUETA 100X63 COUCHE AMARELA"},{"ENDER":"01.004.092.01.00001","SEQPRODUTO":98072,"DESCCOMPLETA":"ME FOLHA CARTAZ 29,795 120G"},{"ENDER":"01.004.092.02.00001","SEQPRODUTO":13143,"DESCCOMPLETA":"ME BLOCO CONTROLE REQUISICAO C/50 LOJA"},{"ENDER":"01.004.093.01.00001","SEQPRODUTO":115619,"DESCCOMPLETA":"ML DESINFETANTE (PEROXI PLUS) DESINFETANTE"},{"ENDER":"01.004.093.02.00001","SEQPRODUTO":69296,"DESCCOMPLETA":"ME TOUCA SANFONADA C/100 TNT"},{"ENDER":"01.004.094.01.00001","SEQPRODUTO":10271,"DESCCOMPLETA":"ME BOBINA P/ PONTO 56X360"},{"ENDER":"01.004.094.02.00001","SEQPRODUTO":98709,"DESCCOMPLETA":"ME PORTA TARJA 1280X40 PERFIL 42"},{"ENDER":"01.004.095.01.00001","SEQPRODUTO":95887,"DESCCOMPLETA":"ME FOLHA CARTAZ FORMATO A5 120G 15X21"},{"ENDER":"01.004.095.02.00001","SEQPRODUTO":107573,"DESCCOMPLETA":"ME ETIQUETA TLANTIC 70Z127 TERM BCA FOSCA"},{"ENDER":"01.004.096.01.00001","SEQPRODUTO":80376,"DESCCOMPLETA":"ME ETIQUETA IDENTIF PROD MANIPULADOS"},{"ENDER":"01.004.096.02.00001","SEQPRODUTO":80408,"DESCCOMPLETA":"ME ETIQUETA IDENTIF PROD ABERTOS"},{"ENDER":"01.004.097.01.00001","SEQPRODUTO":5656,"DESCCOMPLETA":"ME FITILHO P/AMARRAR FARDO UN"},{"ENDER":"01.004.097.02.00001","SEQPRODUTO":3875,"DESCCOMPLETA":"ME ATILHO UN"},{"ENDER":"01.004.098.01.00001","SEQPRODUTO":72065,"DESCCOMPLETA":"ME ETIQUETA TERM GONDULA 38X102MM"},{"ENDER":"01.004.098.02.00001","SEQPRODUTO":24645,"DESCCOMPLETA":"ME BOBINA CANCELA TERMICA"},{"ENDER":"01.004.099.01.00001","SEQPRODUTO":102599,"DESCCOMPLETA":"EMB FILME COPO"},{"ENDER":"01.004.099.02.00001","SEQPRODUTO":116685,"DESCCOMPLETA":"ML LIXEIRA ORDENE 8,5 L INOX PRETA"},{"ENDER":"01.004.100.01.00001","SEQPRODUTO":17036,"DESCCOMPLETA":"ME ETIQUETA 100X63 COUCHE LARANJA"},{"ENDER":"01.004.100.02.00001","SEQPRODUTO":106594,"DESCCOMPLETA":"ME ETIQUETA 100X63 COUCHE ROSA"},{"ENDER":"01.004.101.01.00001","SEQPRODUTO":116183,"DESCCOMPLETA":"ME ETIQUETA TERM 60X100 TLANTIC AMAR ADESIV"},{"ENDER":"01.004.101.02.00001","SEQPRODUTO":11081,"DESCCOMPLETA":"EMB EMBALAGEM PRESENTE 45X60"},{"ENDER":"01.004.102.02.00001","SEQPRODUTO":110863,"DESCCOMPLETA":"ME APLICADOR FILME VALGROUP"},{"ENDER":"01.004.103.01.00001","SEQPRODUTO":117196,"DESCCOMPLETA":"ML DETERGENTE CRIVELLA 5L P/ LOUCA"},{"ENDER":"01.004.103.02.00001","SEQPRODUTO":99960,"DESCCOMPLETA":"ME ETIQUETA 60X30M CONTINUA TERM BALANCA"},{"ENDER":"01.004.104.01.00001","SEQPRODUTO":107133,"DESCCOMPLETA":"ME ETIQ VITRUVIO 38X102 TERM LARANJA"},{"ENDER":"01.004.104.02.00001","SEQPRODUTO":119043,"DESCCOMPLETA":"ML PAPEL TOALHA BOBINA 6X300X19 BLUE"},{"ENDER":"01.004.105.01.00001","SEQPRODUTO":13142,"DESCCOMPLETA":"ME BLOCO COMANDA RESTAURANTE C/50"},{"ENDER":"01.004.105.02.00001","SEQPRODUTO":11288,"DESCCOMPLETA":"EMB SACO PADARIA 25X35 PP"},{"ENDER":"01.004.106.01.00001","SEQPRODUTO":92592,"DESCCOMPLETA":"ME PORTA SACOLA TNT 600G NYLON"},{"ENDER":"01.004.106.02.00001","SEQPRODUTO":99961,"DESCCOMPLETA":"ME ETIQUETA 60X80 TERM BALANCA"},{"ENDER":"01.004.107.01.00001","SEQPRODUTO":99250,"DESCCOMPLETA":"ME LACRE 16CM C/100 AZUL"},{"ENDER":"01.004.107.02.00001","SEQPRODUTO":45178,"DESCCOMPLETA":"ME SACO CONFEITAR POLITILENO UN"},{"ENDER":"01.004.108.01.00001","SEQPRODUTO":10747,"DESCCOMPLETA":"ME BOBINA PDV TERM 80M 80X80 ZAFFARI"},{"ENDER":"01.004.108.02.00001","SEQPRODUTO":103582,"DESCCOMPLETA":"ME PORTA ETIQUETA 1280X40 PERFIL 01"},{"ENDER":"01.004.109.01.00001","SEQPRODUTO":53639,"DESCCOMPLETA":"ME 1 REMOVEDOR TCM- C5L"},{"ENDER":"01.004.109.02.00001","SEQPRODUTO":104410,"DESCCOMPLETA":"ME LACRE C/GRAVACAO CINZA CLARO."},{"ENDER":"01.004.110.01.00001","SEQPRODUTO":95885,"DESCCOMPLETA":"ME FOLHA CARTAZ FORMATO A3 120G"},{"ENDER":"01.004.110.02.00001","SEQPRODUTO":98046,"DESCCOMPLETA":"ME LUVA DESCARTAVEL BILLA C/500"},{"ENDER":"01.005.011.01.00001","SEQPRODUTO":15830,"DESCCOMPLETA":"ME RIBBON ATECH CERA 110X450"},{"ENDER":"01.005.013.01.00001","SEQPRODUTO":10811,"DESCCOMPLETA":"ME ETIQUETA 60X40 TERM BALANCA"},{"ENDER":"01.005.014.01.00001","SEQPRODUTO":95247,"DESCCOMPLETA":"EMB SACOLA STOK TAM 38X48"},{"ENDER":"01.005.017.01.00001","SEQPRODUTO":105336,"DESCCOMPLETA":"EMB FILME STRETCH KG 500X0,030 MAQ"},{"ENDER":"01.005.019.01.00001","SEQPRODUTO":108871,"DESCCOMPLETA":"ME FOLHA CARTAZ FORMATO A4 120G"},{"ENDER":"01.005.020.01.00001","SEQPRODUTO":95321,"DESCCOMPLETA":"EMB SACOLA 38X48 ZAFFARI"},{"ENDER":"01.005.021.01.00001","SEQPRODUTO":113927,"DESCCOMPLETA":"EMB SACO FURADINHO 35X40 EMBALAGEM"},{"ENDER":"01.005.022.01.00001","SEQPRODUTO":105861,"DESCCOMPLETA":"EMB SACOLA 38X48 STOK POA"},{"ENDER":"01.005.023.01.00001","SEQPRODUTO":79938,"DESCCOMPLETA":"EMB SACO PAPEL COM VISOR N02"},{"ENDER":"01.005.024.01.00001","SEQPRODUTO":88507,"DESCCOMPLETA":"ML DISCO ENCERRAD 3M 440MM BCO/BEGE"},{"ENDER":"01.005.025.01.00001","SEQPRODUTO":7777,"DESCCOMPLETA":"ML PAPEL HIG ROLAO 300M C/8 UN"},{"ENDER":"01.005.026.01.00001","SEQPRODUTO":114690,"DESCCOMPLETA":"ME PORTA TARJA 75/85"},{"ENDER":"01.005.027.01.00001","SEQPRODUTO":87072,"DESCCOMPLETA":"EMB SACOLA 42X54 SELF CHECK OUT"},{"ENDER":"01.005.028.01.00001","SEQPRODUTO":115525,"DESCCOMPLETA":"ME ETIQUETA 100X63 COUCHE VERMELHA"},{"ENDER":"01.005.029.01.00001","SEQPRODUTO":79944,"DESCCOMPLETA":"EMB SACO PAPEL COM VISOR N05"},{"ENDER":"01.005.030.01.00001","SEQPRODUTO":110808,"DESCCOMPLETA":"ML SABONETE 5L BECKER LIQ ANTISSEP"},{"ENDER":"01.005.031.01.00001","SEQPRODUTO":11042,"DESCCOMPLETA":"EMB PAPEL PAO PEDRAS BRA 34X45 5KG"},{"ENDER":"01.005.032.01.00001","SEQPRODUTO":73394,"DESCCOMPLETA":"EMB GUARDA VOL 50X80"},{"ENDER":"01.005.033.01.00001","SEQPRODUTO":16785,"DESCCOMPLETA":"EMB FEIXOS PLASTICO 1KG AMARRA GRAV"},{"ENDER":"01.005.034.01.00001","SEQPRODUTO":110809,"DESCCOMPLETA":"ML DESENGRAXANTE BECKER 5L NEUTRO"},{"ENDER":"01.005.035.01.00001","SEQPRODUTO":79947,"DESCCOMPLETA":"EMB SACO PAPEL COM VISOR N10"},{"ENDER":"01.005.037.01.00001","SEQPRODUTO":107938,"DESCCOMPLETA":"ME DISPENSER PLASPET 40L P/RACAO CINZA"},{"ENDER":"01.005.039.01.00001","SEQPRODUTO":91238,"DESCCOMPLETA":"ML LAVA LOUCA KALYKIM 5L ALCALINO CLORADO C223"},{"ENDER":"01.005.040.01.00001","SEQPRODUTO":77386,"DESCCOMPLETA":"ME ETIQUETA TERMICA GONDOL 57X102MM"},{"ENDER":"01.005.041.01.00001","SEQPRODUTO":107661,"DESCCOMPLETA":"EMB FILME PRE ESTIRADO UN420X0,008 MM"},{"ENDER":"01.005.042.01.00001","SEQPRODUTO":7787,"DESCCOMPLETA":"ML RODO DUPLO 55CM UN"},{"ENDER":"01.005.046.01.00001","SEQPRODUTO":11083,"DESCCOMPLETA":"EMB SACO FRIOS VACUO 21X17"},{"ENDER":"01.005.048.01.00001","SEQPRODUTO":101502,"DESCCOMPLETA":"EMB COPO 500ML C/TP FILME NAT"},{"ENDER":"01.005.054.01.00001","SEQPRODUTO":86456,"DESCCOMPLETA":"EMB KIT GUARDANAPO C/PALIT"},{"ENDER":"01.005.062.01.00001","SEQPRODUTO":7814,"DESCCOMPLETA":"ML TOALHA PAPEL 20X21 C/1000 INTERFOLHADO"},{"ENDER":"01.005.064.01.00001","SEQPRODUTO":57223,"DESCCOMPLETA":"ML PLACA PISO MOLHADO"},{"ENDER":"01.005.066.01.00001","SEQPRODUTO":110665,"DESCCOMPLETA":"ME SUPORTE HORTI VALGROUP CURTO"},{"ENDER":"01.005.110.02.00001","SEQPRODUTO":118460,"DESCCOMPLETA":"EMB SACO ESTRELA 34X50 MB MULTID. 34 X 50"},{"ENDER":"01.009.091.01.00001","SEQPRODUTO":95247,"DESCCOMPLETA":"EMB SACOLA STOK TAM 38X48"},{"ENDER":"01.014.080.01.00001","SEQPRODUTO":111793,"DESCCOMPLETA":"EMB FILME STRETCH KG 30 MIC PRETO"},{"ENDER":"01.014.104.01.00001","SEQPRODUTO":111796,"DESCCOMPLETA":"EMB FILME STRETCH KG 30 MIC VERDE"},{"ENDER":"01.019.011.01.00001","SEQPRODUTO":105860,"DESCCOMPLETA":"EMB FILME PRE ESTIRADO KG420X0,008 MM"},{"ENDER":"01.071.119.02.00002","SEQPRODUTO":113928,"DESCCOMPLETA":"ME GRAMPO GUARDA VOLUMES"},{"ENDER":"01.071.125.02.00001","SEQPRODUTO":6401,"DESCCOMPLETA":"ME TINTA P/ CARIMBO PRETO UN"},{"ENDER":"01.071.125.02.00002","SEQPRODUTO":5716,"DESCCOMPLETA":"ME CLIPS C/100G UN"},{"ENDER":"01.071.129.02.00002","SEQPRODUTO":6386,"DESCCOMPLETA":"ME PINCEL ATOMICO VERMELHO UN"},{"ENDER":"01.071.131.02.00004","SEQPRODUTO":16459,"DESCCOMPLETA":"ME ETIQUETA REQUISICAO MATERIAL"},{"ENDER":"01.071.133.02.00002","SEQPRODUTO":110921,"DESCCOMPLETA":"ME MALOTE NYLON TNT CONFECCAO 600"},{"ENDER":"01.071.135.02.00001","SEQPRODUTO":5889,"DESCCOMPLETA":"ME FITA ADESIVA 12MM 12MMX50M"},{"ENDER":"01.071.135.02.00004","SEQPRODUTO":6428,"DESCCOMPLETA":"ME TINTA PINCEL ATOMICO VERMELHO UN"},{"ENDER":"01.071.137.02.00002","SEQPRODUTO":13297,"DESCCOMPLETA":"ME TINTA ESCRITA 500ML AZUL"},{"ENDER":"01.071.137.02.00003","SEQPRODUTO":69027,"DESCCOMPLETA":"ME CANETA CRIST BIC VERM"},{"ENDER":"01.071.137.02.00004","SEQPRODUTO":95939,"DESCCOMPLETA":"ME GRAMPEADOR 13,5CM"},{"ENDER":"01.071.138.03.00001","SEQPRODUTO":110922,"DESCCOMPLETA":"ME NECESSAIRE TNT CONFECCAO 600"},{"ENDER":"01.071.138.03.00004","SEQPRODUTO":6383,"DESCCOMPLETA":"ME PINCEL ATOMICO AZUL UN"},{"ENDER":"01.071.139.02.00001","SEQPRODUTO":13294,"DESCCOMPLETA":"ME KIT ESCRITA 3 PINCEIS UN"},{"ENDER":"01.071.139.02.00002","SEQPRODUTO":6425,"DESCCOMPLETA":"ME TINTA PINCEL ATOMICO AZUL UN"},{"ENDER":"01.071.140.03.00001","SEQPRODUTO":105178,"DESCCOMPLETA":"ME ETIQUETA 40X34 PREV RISCO"},{"ENDER":"01.071.141.02.00002","SEQPRODUTO":13296,"DESCCOMPLETA":"ME KIT ESCRITA 5 PINCEIS UN"},{"ENDER":"01.071.141.02.00004","SEQPRODUTO":13299,"DESCCOMPLETA":"ME TINTA ESCRITA 500ML VERMELHA"},{"ENDER":"01.071.143.02.00001","SEQPRODUTO":3862,"DESCCOMPLETA":"ME ALMOFADA CARIMBO PRETO UN"},{"ENDER":"01.071.144.01.00002","SEQPRODUTO":119253,"DESCCOMPLETA":"ME FITA ADES 45X100 HOTMELT EUROCEL FITA PP 5231"},{"ENDER":"01.071.144.03.00004","SEQPRODUTO":5872,"DESCCOMPLETA":"ME ESTILETE GRANDE UN"},{"ENDER":"01.072.117.01.00001","SEQPRODUTO":89387,"DESCCOMPLETA":"ME FITA ADESIVA 45MM X 40M"},{"ENDER":"01.072.124.02.00002","SEQPRODUTO":103245,"DESCCOMPLETA":"ME CANETA DETECTORA NOTAS FALSAS"},{"ENDER":"01.072.133.02.00001","SEQPRODUTO":110923,"DESCCOMPLETA":"ME POCHETE TNT CONFECCOES 600G"},{"ENDER":"01.072.134.03.00001","SEQPRODUTO":62222,"DESCCOMPLETA":"ME CANETA CRIST BIC PRETA"},{"ENDER":"01.072.135.03.00001","SEQPRODUTO":107050,"DESCCOMPLETA":"ME LAMINA P/ESTILETE BICO PATO"},{"ENDER":"01.072.137.02.00001","SEQPRODUTO":6366,"DESCCOMPLETA":"ME LAMINA P/ESTILETE GDE UN"},{"ENDER":"01.072.141.03.00003","SEQPRODUTO":15601,"DESCCOMPLETA":"ME GRAMPO 26/6 C/5000 P/GRAMPEADOR"},{"ENDER":"01.072.141.03.00004","SEQPRODUTO":99291,"DESCCOMPLETA":"ME POST IT 38X50MM 4 BLOCOS C/50F"},{"ENDER":"01.092.117.02.00001","SEQPRODUTO":116455,"DESCCOMPLETA":"ML PULVERIZADOR PLAST SANREMO 580ML"},{"ENDER":"01.097.126.01.00002","SEQPRODUTO":119681,"DESCCOMPLETA":"ML SACO DE LIXO TRANSPARENTE 100L"},{"ENDER":"01.100.132.02.00002","SEQPRODUTO":119680,"DESCCOMPLETA":"ML SACO DE LIXO TRANSPARENTE 30L C/100"}],"pulmao":[{"ENDER":"01.003.093.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.003.097.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.004.012.41.00001","SEQPRODUTO":79947,"DESCRICAO":"EMB SACO PAPEL COM VISOR N10","STATUS":"Ocupado"},{"ENDER":"01.004.066.31.00001","SEQPRODUTO":10202,"DESCRICAO":"EMB BANDEJA ACOUGUE ABS 10 PRETA","STATUS":"Ocupado"},{"ENDER":"01.004.075.21.00001","SEQPRODUTO":95885,"DESCRICAO":"ME FOLHA CARTAZ FORMATO A3 120G","STATUS":"Ocupado"},{"ENDER":"01.004.078.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.004.085.21.00001","SEQPRODUTO":96164,"DESCRICAO":"ME BOBINA PDV TERM 80X80 STOK","STATUS":"Ocupado"},{"ENDER":"01.004.087.51.00001","SEQPRODUTO":90547,"DESCRICAO":"ML DETERGENTE KALYKIM 5L MULTIUSO TRAD PA","STATUS":"Reservado"},{"ENDER":"01.004.090.21.00001","SEQPRODUTO":99960,"DESCRICAO":"ME ETIQUETA 60X30M CONTINUA TERM BALANCA","STATUS":"Ocupado"},{"ENDER":"01.004.091.51.00001","SEQPRODUTO":118460,"DESCRICAO":"EMB SACO ESTRELA 34X50 MB MULTID. 34 X 50","STATUS":"Ocupado"},{"ENDER":"01.004.092.41.00001","SEQPRODUTO":98072,"DESCRICAO":"ME FOLHA CARTAZ 29,795 120G","STATUS":"Ocupado"},{"ENDER":"01.004.096.51.00001","SEQPRODUTO":98072,"DESCRICAO":"ME FOLHA CARTAZ 29,795 120G","STATUS":"Ocupado"},{"ENDER":"01.004.097.51.00001","SEQPRODUTO":98072,"DESCRICAO":"ME FOLHA CARTAZ 29,795 120G","STATUS":"Ocupado"},{"ENDER":"01.005.027.21.00001","SEQPRODUTO":7777,"DESCRICAO":"ML PAPEL HIG ROLAO 300M C/8 UN","STATUS":"Ocupado"},{"ENDER":"01.005.044.61.00001","SEQPRODUTO":107938,"DESCRICAO":"ME DISPENSER PLASPET 40L P/RACAO CINZA","STATUS":"Ocupado"},{"ENDER":"01.005.090.61.00001","SEQPRODUTO":96164,"DESCRICAO":"ME BOBINA PDV TERM 80X80 STOK","STATUS":"Ocupado"},{"ENDER":"01.005.102.41.00001","SEQPRODUTO":96164,"DESCRICAO":"ME BOBINA PDV TERM 80X80 STOK","STATUS":"Ocupado"},{"ENDER":"01.005.105.31.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.006.034.21.00001","SEQPRODUTO":114690,"DESCRICAO":"ME PORTA TARJA 75/85","STATUS":"Ocupado"},{"ENDER":"01.006.040.21.00001","SEQPRODUTO":114690,"DESCRICAO":"ME PORTA TARJA 75/85","STATUS":"Ocupado"},{"ENDER":"01.006.049.41.00001","SEQPRODUTO":114690,"DESCRICAO":"ME PORTA TARJA 75/85","STATUS":"Ocupado"},{"ENDER":"01.006.050.21.00001","SEQPRODUTO":114690,"DESCRICAO":"ME PORTA TARJA 75/85","STATUS":"Ocupado"},{"ENDER":"01.006.080.61.00001","SEQPRODUTO":114690,"DESCRICAO":"ME PORTA TARJA 75/85","STATUS":"Ocupado"},{"ENDER":"01.007.015.41.00001","SEQPRODUTO":95885,"DESCRICAO":"ME FOLHA CARTAZ FORMATO A3 120G","STATUS":"Ocupado"},{"ENDER":"01.007.097.31.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.007.099.41.00001","SEQPRODUTO":96164,"DESCRICAO":"ME BOBINA PDV TERM 80X80 STOK","STATUS":"Ocupado"},{"ENDER":"01.007.101.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.008.033.41.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.008.104.51.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.017.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.020.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.025.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.026.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.028.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.031.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.032.61.00001","SEQPRODUTO":87072,"DESCRICAO":"EMB SACOLA 42X54 SELF CHECK OUT","STATUS":"Ocupado"},{"ENDER":"01.009.034.41.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.009.042.61.00001","SEQPRODUTO":7814,"DESCRICAO":"ML TOALHA PAPEL 20X21 C/1000 INTERFOLHADO","STATUS":"Ocupado"},{"ENDER":"01.009.052.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.054.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.058.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.060.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.061.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.069.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.073.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.073.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.077.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.080.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.086.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.093.51.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.094.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.096.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.098.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.103.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.009.108.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.009.110.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.010.017.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.023.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.034.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.034.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.035.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.037.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.038.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.039.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.039.41.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.040.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.043.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.053.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.055.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.061.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.061.51.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.063.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.065.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.067.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.071.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.075.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.075.51.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.076.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.083.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.085.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.085.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.089.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.091.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.093.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.095.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.010.102.21.00001","SEQPRODUTO":24645,"DESCRICAO":"ME BOBINA CANCELA TERMICA","STATUS":"Ocupado"},{"ENDER":"01.010.105.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.011.021.51.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.011.029.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.011.047.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.011.064.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.011.068.51.00001","SEQPRODUTO":10811,"DESCRICAO":"ME ETIQUETA 60X40 TERM BALANCA","STATUS":"Ocupado"},{"ENDER":"01.011.081.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.011.085.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.011.089.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.011.095.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.016.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.018.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.020.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.052.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.062.41.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.066.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.068.41.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.072.51.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.080.41.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.088.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.090.41.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.102.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.012.104.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.013.090.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.015.080.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.019.072.21.00001","SEQPRODUTO":75709,"DESCRICAO":"EMB PIZZA CAIXA PAPELAO","STATUS":"Ocupado"},{"ENDER":"01.051.117.31.00001","SEQPRODUTO":11087,"DESCRICAO":"EMB SACO FURADINHO PAO 28X40","STATUS":"Ocupado"},{"ENDER":"01.051.117.51.00001","SEQPRODUTO":107573,"DESCRICAO":"ME ETIQUETA TLANTIC 70Z127 TERM BCA FOSCA","STATUS":"Ocupado"},{"ENDER":"01.051.119.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.051.119.41.00001","SEQPRODUTO":90552,"DESCRICAO":"ML DETERGENTE KALYKIM 5L LIMP PESAD CL","STATUS":"Reservado"},{"ENDER":"01.051.119.51.00001","SEQPRODUTO":73394,"DESCRICAO":"EMB GUARDA VOL 50X80","STATUS":"Ocupado"},{"ENDER":"01.051.121.21.00001","SEQPRODUTO":88507,"DESCRICAO":"ML DISCO ENCERRAD 3M 440MM BCO/BEGE","STATUS":"Reservado"},{"ENDER":"01.051.121.31.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.121.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.051.123.31.00001","SEQPRODUTO":90552,"DESCRICAO":"ML DETERGENTE KALYKIM 5L LIMP PESAD CL","STATUS":"Ocupado"},{"ENDER":"01.051.123.41.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.123.61.00001","SEQPRODUTO":10202,"DESCRICAO":"EMB BANDEJA ACOUGUE ABS 10 PRETA","STATUS":"Ocupado"},{"ENDER":"01.051.125.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.051.125.31.00001","SEQPRODUTO":104410,"DESCRICAO":"ME LACRE C/GRAVACAO CINZA CLARO.","STATUS":"Ocupado"},{"ENDER":"01.051.125.41.00001","SEQPRODUTO":73394,"DESCRICAO":"EMB GUARDA VOL 50X80","STATUS":"Ocupado"},{"ENDER":"01.051.125.51.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.127.31.00001","SEQPRODUTO":11087,"DESCRICAO":"EMB SACO FURADINHO PAO 28X40","STATUS":"Ocupado"},{"ENDER":"01.051.127.41.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.129.31.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.129.41.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.129.51.00001","SEQPRODUTO":95885,"DESCRICAO":"ME FOLHA CARTAZ FORMATO A3 120G","STATUS":"Ocupado"},{"ENDER":"01.051.131.31.00001","SEQPRODUTO":95885,"DESCRICAO":"ME FOLHA CARTAZ FORMATO A3 120G","STATUS":"Ocupado"},{"ENDER":"01.051.131.41.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.051.133.31.00001","SEQPRODUTO":95885,"DESCRICAO":"ME FOLHA CARTAZ FORMATO A3 120G","STATUS":"Ocupado"},{"ENDER":"01.051.133.41.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.133.51.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.135.31.00001","SEQPRODUTO":10747,"DESCRICAO":"ME BOBINA PDV TERM 80M 80X80 ZAFFARI","STATUS":"Ocupado"},{"ENDER":"01.051.135.41.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.051.135.51.00001","SEQPRODUTO":119041,"DESCRICAO":"ML DETERG NEUTRO KALYCLEAN N 7 22 KALYCLEAN N 722","STATUS":"Reservado"},{"ENDER":"01.051.135.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.051.137.31.00001","SEQPRODUTO":90552,"DESCRICAO":"ML DETERGENTE KALYKIM 5L LIMP PESAD CL","STATUS":"Reservado"},{"ENDER":"01.051.139.41.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.051.139.51.00001","SEQPRODUTO":10811,"DESCRICAO":"ME ETIQUETA 60X40 TERM BALANCA","STATUS":"Ocupado"},{"ENDER":"01.051.143.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.051.143.31.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.051.143.41.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.051.143.51.00001","SEQPRODUTO":99960,"DESCRICAO":"ME ETIQUETA 60X30M CONTINUA TERM BALANCA","STATUS":"Ocupado"},{"ENDER":"01.051.145.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.051.145.31.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.145.41.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.051.145.51.00001","SEQPRODUTO":97091,"DESCRICAO":"EMB SACO ESTRELA 34X50 C/815","STATUS":"Ocupado"},{"ENDER":"01.051.147.21.00001","SEQPRODUTO":87072,"DESCRICAO":"EMB SACOLA 42X54 SELF CHECK OUT","STATUS":"Ocupado"},{"ENDER":"01.051.147.31.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.051.147.51.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.051.149.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.051.149.41.00001","SEQPRODUTO":95441,"DESCRICAO":"EMB PIZZA 30CM NP210","STATUS":"Ocupado"},{"ENDER":"01.051.151.51.00001","SEQPRODUTO":10747,"DESCRICAO":"ME BOBINA PDV TERM 80M 80X80 ZAFFARI","STATUS":"Ocupado"},{"ENDER":"01.051.153.41.00001","SEQPRODUTO":95321,"DESCRICAO":"EMB SACOLA 38X48 ZAFFARI","STATUS":"Ocupado"},{"ENDER":"01.051.153.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.051.155.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.051.155.31.00001","SEQPRODUTO":99961,"DESCRICAO":"ME ETIQUETA 60X80 TERM BALANCA","STATUS":"Ocupado"},{"ENDER":"01.051.155.41.00001","SEQPRODUTO":11087,"DESCRICAO":"EMB SACO FURADINHO PAO 28X40","STATUS":"Ocupado"},{"ENDER":"01.051.161.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.051.161.41.00001","SEQPRODUTO":8724,"DESCRICAO":"EMB FILME PVC 38 X 10 MIC","STATUS":"Ocupado"},{"ENDER":"01.051.165.31.00001","SEQPRODUTO":110365,"DESCRICAO":"ME ETIQUETA BALANCA 60X130MM TERMICA","STATUS":"Ocupado"},{"ENDER":"01.051.167.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.051.167.51.00001","SEQPRODUTO":110923,"DESCRICAO":"ME POCHETE TNT CONFECCOES 600G","STATUS":"Ocupado"},{"ENDER":"01.051.169.41.00001","SEQPRODUTO":113928,"DESCRICAO":"ME GRAMPO GUARDA VOLUMES","STATUS":"Ocupado"},{"ENDER":"01.051.171.61.00001","SEQPRODUTO":110365,"DESCRICAO":"ME ETIQUETA BALANCA 60X130MM TERMICA","STATUS":"Ocupado"},{"ENDER":"01.052.119.21.00001","SEQPRODUTO":87072,"DESCRICAO":"EMB SACOLA 42X54 SELF CHECK OUT","STATUS":"Ocupado"},{"ENDER":"01.052.120.71.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.052.121.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.052.126.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.052.127.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.052.131.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.052.139.61.00001","SEQPRODUTO":7777,"DESCRICAO":"ML PAPEL HIG ROLAO 300M C/8 UN","STATUS":"Ocupado"},{"ENDER":"01.052.142.71.00001","SEQPRODUTO":10202,"DESCRICAO":"EMB BANDEJA ACOUGUE ABS 10 PRETA","STATUS":"Ocupado"},{"ENDER":"01.052.145.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.052.152.51.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.052.154.41.00001","SEQPRODUTO":96164,"DESCRICAO":"ME BOBINA PDV TERM 80X80 STOK","STATUS":"Ocupado"},{"ENDER":"01.052.155.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.052.161.61.00001","SEQPRODUTO":96164,"DESCRICAO":"ME BOBINA PDV TERM 80X80 STOK","STATUS":"Ocupado"},{"ENDER":"01.052.163.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.053.128.71.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.053.135.61.00001","SEQPRODUTO":96164,"DESCRICAO":"ME BOBINA PDV TERM 80X80 STOK","STATUS":"Ocupado"},{"ENDER":"01.053.137.51.00001","SEQPRODUTO":110365,"DESCRICAO":"ME ETIQUETA BALANCA 60X130MM TERMICA","STATUS":"Ocupado"},{"ENDER":"01.053.144.71.00001","SEQPRODUTO":10202,"DESCRICAO":"EMB BANDEJA ACOUGUE ABS 10 PRETA","STATUS":"Ocupado"},{"ENDER":"01.054.117.31.00001","SEQPRODUTO":99080,"DESCRICAO":"ML ALCOOL LIQUIDO 5L 70° INPM INCOLOR","STATUS":"Ocupado"},{"ENDER":"01.054.130.71.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.054.138.61.00001","SEQPRODUTO":103582,"DESCRICAO":"ME PORTA ETIQUETA 1280X40 PERFIL 01","STATUS":"Ocupado"},{"ENDER":"01.054.171.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.055.117.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.055.126.51.00001","SEQPRODUTO":103582,"DESCRICAO":"ME PORTA ETIQUETA 1280X40 PERFIL 01","STATUS":"Ocupado"},{"ENDER":"01.055.134.71.00001","SEQPRODUTO":107938,"DESCRICAO":"ME DISPENSER PLASPET 40L P/RACAO CINZA","STATUS":"Ocupado"},{"ENDER":"01.055.140.71.00001","SEQPRODUTO":103582,"DESCRICAO":"ME PORTA ETIQUETA 1280X40 PERFIL 01","STATUS":"Ocupado"},{"ENDER":"01.055.160.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.055.163.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.055.168.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.055.175.61.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.056.128.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.056.137.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.057.125.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.057.146.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.057.156.71.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.057.164.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.057.166.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.057.173.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.057.177.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.057.182.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.058.120.71.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.058.124.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.058.136.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.058.142.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.058.150.51.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.058.156.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.058.158.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.058.169.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.058.170.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.059.121.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.059.139.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.059.140.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.059.147.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.059.150.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.059.154.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.059.156.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.059.166.21.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.059.177.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.060.135.41.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.060.139.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.060.141.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.060.145.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.060.153.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.060.159.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.060.162.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.060.166.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.060.169.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.060.176.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.060.177.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.061.129.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.061.132.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.061.136.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.061.157.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.061.159.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.061.161.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.061.175.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.061.175.41.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.061.180.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.061.182.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.061.184.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.124.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.127.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.130.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.151.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.154.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.160.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.163.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.164.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.166.31.00001","SEQPRODUTO":114690,"DESCRICAO":"ME PORTA TARJA 75/85","STATUS":"Ocupado"},{"ENDER":"01.062.169.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.171.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.172.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.174.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.176.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.062.178.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.063.129.21.00001","SEQPRODUTO":105861,"DESCRICAO":"EMB SACOLA 38X48 STOK POA","STATUS":"Ocupado"},{"ENDER":"01.063.134.31.00001","SEQPRODUTO":110365,"DESCRICAO":"ME ETIQUETA BALANCA 60X130MM TERMICA","STATUS":"Ocupado"},{"ENDER":"01.063.159.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.063.170.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.124.61.00001","SEQPRODUTO":28483,"DESCRICAO":"EMB BANDEJA ACOUGUE PROF N101 PRETA","STATUS":"Ocupado"},{"ENDER":"01.064.154.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.156.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.158.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.159.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.162.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.164.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.166.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.168.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.170.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.172.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.174.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.177.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.178.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.180.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.182.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.064.184.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.065.128.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.065.161.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.065.174.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.066.120.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.066.152.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.066.154.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.066.157.51.00001","SEQPRODUTO":11087,"DESCRICAO":"EMB SACO FURADINHO PAO 28X40","STATUS":"Ocupado"},{"ENDER":"01.066.164.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.066.166.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.066.176.61.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.070.118.31.00001","SEQPRODUTO":90554,"DESCRICAO":"ML SABONETE KALYKIM 5L BACTERICIDA","STATUS":"Reservado"},{"ENDER":"01.070.120.32.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.070.122.21.00001","SEQPRODUTO":118461,"DESCRICAO":"ML SABONETE LIQUIDO KALYCLEAN H130 ERVA DOCE","STATUS":"Reservado"},{"ENDER":"01.070.128.32.00001","SEQPRODUTO":118461,"DESCRICAO":"ML SABONETE LIQUIDO KALYCLEAN H130 ERVA DOCE","STATUS":"Ocupado"},{"ENDER":"01.070.138.41.00001","SEQPRODUTO":118461,"DESCRICAO":"ML SABONETE LIQUIDO KALYCLEAN H130 ERVA DOCE","STATUS":"Reservado"},{"ENDER":"01.071.117.31.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.071.121.31.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.071.122.32.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.071.123.31.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.071.123.41.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.071.123.42.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.071.124.22.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.071.124.32.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.072.118.21.00001","SEQPRODUTO":89387,"DESCRICAO":"ME FITA ADESIVA 45MM X 40M","STATUS":"Ocupado"},{"ENDER":"01.072.118.31.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.072.118.32.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.072.119.41.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.072.119.42.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.072.120.31.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.072.121.41.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.072.122.42.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.072.123.31.00001","SEQPRODUTO":107661,"DESCRICAO":"EMB FILME PRE ESTIRADO UN420X0,008 MM","STATUS":"Ocupado"},{"ENDER":"01.073.117.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.119.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.119.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.120.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.121.32.00001","SEQPRODUTO":69297,"DESCRICAO":"ML ROLO PANO MULTIUSO C/600","STATUS":"Ocupado"},{"ENDER":"01.073.121.41.00001","SEQPRODUTO":89387,"DESCRICAO":"ME FITA ADESIVA 45MM X 40M","STATUS":"Ocupado"},{"ENDER":"01.073.122.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.122.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.123.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.123.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.124.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.125.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.126.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.126.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.127.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.127.31.00001","SEQPRODUTO":90552,"DESCRICAO":"ML DETERGENTE KALYKIM 5L LIMP PESAD CL","STATUS":"Ocupado"},{"ENDER":"01.073.128.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.129.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.129.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.129.32.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.129.42.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.131.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.131.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.132.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.132.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.133.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.134.32.00001","SEQPRODUTO":110365,"DESCRICAO":"ME ETIQUETA BALANCA 60X130MM TERMICA","STATUS":"Ocupado"},{"ENDER":"01.073.136.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.137.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.137.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.137.31.00001","SEQPRODUTO":90547,"DESCRICAO":"ML DETERGENTE KALYKIM 5L MULTIUSO TRAD PA","STATUS":"Ocupado"},{"ENDER":"01.073.137.41.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.138.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.139.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.140.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.140.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.141.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.142.21.00001","SEQPRODUTO":110365,"DESCRICAO":"ME ETIQUETA BALANCA 60X130MM TERMICA","STATUS":"Ocupado"},{"ENDER":"01.073.142.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.143.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.073.144.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.074.119.51.00001","SEQPRODUTO":10202,"DESCRICAO":"EMB BANDEJA ACOUGUE ABS 10 PRETA","STATUS":"Ocupado"},{"ENDER":"01.074.124.62.00001","SEQPRODUTO":28483,"DESCRICAO":"EMB BANDEJA ACOUGUE PROF N101 PRETA","STATUS":"Ocupado"},{"ENDER":"01.074.138.32.00001","SEQPRODUTO":7814,"DESCRICAO":"ML TOALHA PAPEL 20X21 C/1000 INTERFOLHADO","STATUS":"Ocupado"},{"ENDER":"01.074.139.51.00001","SEQPRODUTO":7814,"DESCRICAO":"ML TOALHA PAPEL 20X21 C/1000 INTERFOLHADO","STATUS":"Ocupado"},{"ENDER":"01.074.142.61.00001","SEQPRODUTO":7777,"DESCRICAO":"ML PAPEL HIG ROLAO 300M C/8 UN","STATUS":"Ocupado"},{"ENDER":"01.075.120.62.00001","SEQPRODUTO":7777,"DESCRICAO":"ML PAPEL HIG ROLAO 300M C/8 UN","STATUS":"Ocupado"},{"ENDER":"01.076.139.21.00001","SEQPRODUTO":7777,"DESCRICAO":"ML PAPEL HIG ROLAO 300M C/8 UN","STATUS":"Ocupado"},{"ENDER":"01.076.139.22.00001","SEQPRODUTO":7777,"DESCRICAO":"ML PAPEL HIG ROLAO 300M C/8 UN","STATUS":"Ocupado"},{"ENDER":"01.078.118.21.00001","SEQPRODUTO":7777,"DESCRICAO":"ML PAPEL HIG ROLAO 300M C/8 UN","STATUS":"Ocupado"},{"ENDER":"01.080.123.62.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.080.129.62.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.082.125.61.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.085.140.71.00001","SEQPRODUTO":110671,"DESCRICAO":"EMB SACO ESTRELA 34X50 VALG COM 815","STATUS":"Ocupado"},{"ENDER":"01.086.120.62.00001","SEQPRODUTO":7814,"DESCRICAO":"ML TOALHA PAPEL 20X21 C/1000 INTERFOLHADO","STATUS":"Ocupado"},{"ENDER":"01.087.127.22.00001","SEQPRODUTO":89387,"DESCRICAO":"ME FITA ADESIVA 45MM X 40M","STATUS":"Ocupado"},{"ENDER":"01.089.128.21.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.091.119.71.00001","SEQPRODUTO":28483,"DESCRICAO":"EMB BANDEJA ACOUGUE PROF N101 PRETA","STATUS":"Ocupado"},{"ENDER":"01.091.120.72.00001","SEQPRODUTO":7814,"DESCRICAO":"ML TOALHA PAPEL 20X21 C/1000 INTERFOLHADO","STATUS":"Ocupado"},{"ENDER":"01.091.123.71.00001","SEQPRODUTO":7814,"DESCRICAO":"ML TOALHA PAPEL 20X21 C/1000 INTERFOLHADO","STATUS":"Ocupado"},{"ENDER":"01.092.134.22.00001","SEQPRODUTO":95247,"DESCRICAO":"EMB SACOLA STOK TAM 38X48","STATUS":"Ocupado"},{"ENDER":"01.093.135.71.00001","SEQPRODUTO":7814,"DESCRICAO":"ML TOALHA PAPEL 20X21 C/1000 INTERFOLHADO","STATUS":"Ocupado"},{"ENDER":"01.096.128.32.00001","SEQPRODUTO":10183,"DESCRICAO":"EMB BANDEJA ACOUGUE PROF N101 ROSA SUINO","STATUS":"Ocupado"},{"ENDER":"01.097.118.62.00001","SEQPRODUTO":7814,"DESCRICAO":"ML TOALHA PAPEL 20X21 C/1000 INTERFOLHADO","STATUS":"Ocupado"},{"ENDER":"01.097.122.32.00001","SEQPRODUTO":119253,"DESCRICAO":"ME FITA ADES 45X100 HOTMELT EUROCEL FITA PP 5231","STATUS":"Ocupado"},{"ENDER":"01.097.124.31.00001","SEQPRODUTO":119253,"DESCRICAO":"ME FITA ADES 45X100 HOTMELT EUROCEL FITA PP 5231","STATUS":"Ocupado"},{"ENDER":"01.098.120.51.00001","SEQPRODUTO":110923,"DESCRICAO":"ME POCHETE TNT CONFECCOES 600G","STATUS":"Ocupado"},{"ENDER":"01.098.133.32.00001","SEQPRODUTO":119680,"DESCRICAO":"ML SACO DE LIXO TRANSPARENTE 30L C/100","STATUS":"Ocupado"},{"ENDER":"01.098.137.42.00001","SEQPRODUTO":119680,"DESCRICAO":"ML SACO DE LIXO TRANSPARENTE 30L C/100","STATUS":"Ocupado"},{"ENDER":"01.099.123.32.00001","SEQPRODUTO":69297,"DESCRICAO":"ML ROLO PANO MULTIUSO C/600","STATUS":"Ocupado"},{"ENDER":"01.101.122.32.00001","SEQPRODUTO":10183,"DESCRICAO":"EMB BANDEJA ACOUGUE PROF N101 ROSA SUINO","STATUS":"Ocupado"},{"ENDER":"01.102.121.22.00001","SEQPRODUTO":28483,"DESCRICAO":"EMB BANDEJA ACOUGUE PROF N101 PRETA","STATUS":"Ocupado"},{"ENDER":"01.103.134.62.00001","SEQPRODUTO":10183,"DESCRICAO":"EMB BANDEJA ACOUGUE PROF N101 ROSA SUINO","STATUS":"Ocupado"},{"ENDER":"01.104.123.62.00001","SEQPRODUTO":10183,"DESCRICAO":"EMB BANDEJA ACOUGUE PROF N101 ROSA SUINO","STATUS":"Ocupado"},{"ENDER":"01.104.125.61.00001","SEQPRODUTO":119681,"DESCRICAO":"ML SACO DE LIXO TRANSPARENTE 100L","STATUS":"Ocupado"}]};
+
+const ME_CODES = new Set([1552,2710,3862,3875,5656,5671,5710,5716,5736,5872,5889,5916,6349,6355,6361,6366,6371,6383,6386,6399,6401,6425,6428,6435,6445,6446,6680,6689,6694,6700,6704,6926,6938,6957,6975,7238,7249,7271,7279,7290,7492,7543,7546,7550,7613,7616,7621,7629,7640,7733,7738,7743,7751,7756,7770,7777,7782,7787,7792,7794,7803,7807,7814,7822,7825,7833,7837,7838,7841,7842,7845,7846,8463,8509,8522,8533,8572,8585,8590,8649,8659,8669,8695,8702,8705,8710,8724,8734,8737,8738,10183,10193,10202,10211,10239,10250,10271,10747,10764,10791,10811,10961,10982,10992,11006,11015,11029,11039,11042,11051,11054,11079,11080,11081,11083,11085,11087,11266,11271,11274,11278,11286,11288,11296,11319,12574,12575,12579,12588,12612,12613,12614,12893,13141,13142,13143,13145,13146,13147,13157,13158,13159,13237,13245,13247,13249,13272,13277,13279,13281,13294,13296,13297,13299,14528,14535,15311,15454,15546,15594,15595,15596,15597,15601,15686,15830,16033,16116,16152,16211,16213,16215,16216,16219,16220,16221,16273,16274,16276,16277,16279,16280,16332,16334,16373,16415,16457,16458,16459,16460,16461,16462,16463,16464,16465,16466,16467,16583,16590,16613,16785,16790,16791,16792,16793,16866,16950,16993,16994,16997,16998,17001,17002,17003,17004,17005,17009,17011,17036,17037,17038,17040,17080,17370,17451,17452,17453,17471,17472,19186,19190,19191,19192,19193,19229,19314,19354,19942,19992,20043,20662,20724,20765,20802,21202,22466,22505,22666,22667,24129,24232,24645,25445,25766,25786,26076,26605,26606,26793,26794,27204,27216,27785,27966,28146,28147,28148,28165,28189,28343,28483,28484,28565,28588,28589,28590,28637,28786,29310,29311,29351,30365,30565,31590,31593,32005,32087,32165,32166,32834,32835,33246,33247,34205,34803,35044,35200,35505,35818,35819,35860,35861,35986,36097,36138,36475,36702,36986,37061,37120,37125,37195,37731,39039,39103,39211,39212,39213,39214,39215,39218,39219,39220,39312,39533,39534,39536,39537,39538,39979,39980,39981,39982,40283,40539,40666,40759,40940,40979,41064,42026,42500,42717,43497,43498,43619,43620,43621,43622,43929,43959,43960,43961,43962,43963,43964,43965,43966,43967,43968,43969,43970,43971,43972,43973,44742,45178,45280,45459,46381,46679,46681,49451,49460,49505,49699,50079,51719,51720,51959,52562,53299,53300,53639,54519,54766,55247,55248,55249,56844,57164,57223,57225,57239,57320,57359,57360,57361,57379,57659,58079,58080,58081,58099,59521,59607,59608,60414,60415,60418,60420,60715,60898,60900,60901,61377,62218,62220,62221,62222,62223,62913,63133,63134,63620,64157,64674,64744,66584,67153,67455,67456,67574,67575,67576,67577,67578,67579,67580,67581,67933,67982,68273,68520,68544,68545,68594,68701,68760,68816,68881,69015,69026,69027,69033,69034,69035,69036,69037,69038,69039,69040,69082,69083,69084,69086,69118,69239,69296,69297,69357,69404,69434,69744,70054,70055,70329,70330,70331,70332,70336,70338,70340,70341,70432,70433,70434,70435,70596,70618,70810,70841,70843,70845,70846,70847,70848,71662,72065,72777,72895,73276,73277,73278,73360,73361,73362,73363,73365,73366,73367,73368,73393,73394,73395,73634,73635,73717,73951,74178,74925,74926,75049,75401,75706,75709,76049,76614,76616,76786,76787,76788,76789,76790,76791,76792,76793,76794,76795,76796,76797,76798,76799,76800,76801,76802,76803,76804,76805,76806,76807,76808,76809,76810,76811,76812,76813,76814,76815,76816,76817,76818,76819,76820,76821,76822,76823,76824,76825,76826,76827,76828,76829,76830,76831,76832,76833,76834,76835,76836,76846,76847,76848,76849,76850,76851,76906,76907,76908,77276,77278,77279,77283,77285,77370,77386,77756,78386,78633,78634,78635,78636,78637,78638,78639,78642,78648,78649,78650,78689,78690,78691,78698,78822,78908,78909,78910,78916,78917,78918,78919,78971,79075,79348,79352,79485,79487,79588,79589,79590,79591,79850,79938,79941,79944,79947,80335,80341,80376,80408,80508,80632,80885,81076,81733,82796,82797,83496,83539,83571,83575,83576,83577,83578,83579,83580,83836,83837,83861,83975,83976,83977,83978,83979,83980,83981,83982,83983,83984,83985,84495,84750,84751,84752,84881,84882,84883,84896,84897,85236,85638,85639,85640,85926,85927,85989,85990,86456,86679,86680,86681,86683,86684,86797,86805,86810,86811,87072,87515,87685,87850,87851,87852,87967,87968,87969,87994,88405,88406,88407,88408,88409,88505,88506,88507,88512,88526,88923,89387,89805,90045,90046,90047,90048,90106,90207,90229,90258,90547,90548,90550,90551,90552,90553,90554,90555,90556,90557,91114,91116,91149,91238,91239,91240,91241,91323,91414,91415,91417,91441,91443,91444,91445,91747,91748,92144,92145,92146,92592,93109,93191,93282,93410,93768,94015,94016,94019,94029,94061,94063,94064,94065,94066,94067,94078,94079,94080,94399,94400,94401,95247,95321,95322,95441,95536,95884,95885,95887,95926,95931,95939,96162,96163,96164,96838,97091,98046,98072,98448,98536,98540,98663,98664,98708,98709,98710,98762,99080,99250,99291,99692,99960,99961,100081,100082,100265,100266,100726,100817,100876,101253,101502,101504,101505,101522,101782,101931,101932,102598,102599,102628,102629,103212,103214,103215,103216,103217,103244,103245,103464,103465,103466,103467,103580,103581,103582,103583,103720,103721,103722,103964,103966,104364,104410,104686,104687,104694,104695,105093,105094,105178,105290,105336,105860,105861,105862,105985,106259,106594,106596,107050,107133,107573,107661,107662,107938,108694,108871,109029,109132,109303,109863,110193,110365,110440,110441,110665,110666,110667,110668,110671,110808,110809,110810,110811,110812,110863,110921,110922,110923,111175,111777,111793,111796,112160,112744,112745,112746,113927,113928,114132,114133,114134,114135,114158,114160,114162,114690,115411,115525,115617,115618,115619,115652,115656,115657,115671,115672,115673,116183,116184,116455,116459,116685,116961,117194,117196,117199,117723,118460,118461,119028,119030,119041,119043,119238,119253,119548,119680,119681]);
+
+// ========== ESTADO ==========
+let state = {
+  apanha: [],
+  pulmao: [],
+  currentTab: 'apanha',
+  sortCol: { apanha: 'ENDER', pulmao: 'ENDER' },
+  sortDir: { apanha: 1, pulmao: 1 },
+  filter: ''
+};
+
+let uploadedFiles = { ruas: null, pulmao: null };
+
+// ========== INIT ==========
+function init() {
+  state.apanha = EMBEDDED_DATA.apanha;
+  state.pulmao = EMBEDDED_DATA.pulmao;
+  render();
+}
+
+// ========== TABS ==========
+function switchTab(tab) {
+  state.currentTab = tab;
+  document.getElementById('tab-apanha').classList.toggle('active', tab === 'apanha');
+  document.getElementById('tab-pulmao').classList.toggle('active', tab === 'pulmao');
+  document.getElementById('content-apanha').classList.toggle('active', tab === 'apanha');
+  document.getElementById('content-pulmao').classList.toggle('active', tab === 'pulmao');
+  document.getElementById('search-input').value = '';
+  state.filter = '';
+  render();
+}
+
+// ========== FILTRO ==========
+function applyFilter() {
+  state.filter = document.getElementById('search-input').value.toLowerCase().trim();
+  render();
+}
+
+function filterData(arr, tab) {
+  if (!state.filter) return arr;
+  return arr.filter(r => {
+    const s = state.filter;
+    if (tab === 'apanha') {
+      return r.ENDER.toLowerCase().includes(s) ||
+             String(r.SEQPRODUTO).includes(s) ||
+             r.DESCCOMPLETA.toLowerCase().includes(s);
+    } else {
+      return r.ENDER.toLowerCase().includes(s) ||
+             String(r.SEQPRODUTO).includes(s) ||
+             r.DESCRICAO.toLowerCase().includes(s) ||
+             (r.STATUS || '').toLowerCase().includes(s);
+    }
+  });
+}
+
+// ========== SORT ==========
+function sortTable(tab, col) {
+  if (state.sortCol[tab] === col) {
+    state.sortDir[tab] *= -1;
+  } else {
+    state.sortCol[tab] = col;
+    state.sortDir[tab] = 1;
+  }
+  render();
+}
+
+function sortedData(arr, tab) {
+  const col = state.sortCol[tab];
+  const dir = state.sortDir[tab];
+  return [...arr].sort((a, b) => {
+    let va = a[col] ?? '', vb = b[col] ?? '';
+    if (typeof va === 'number') return (va - vb) * dir;
+    return String(va).localeCompare(String(vb), 'pt-BR') * dir;
+  });
+}
+
+// ========== RENDER ==========
+function render() {
+  const tab = state.currentTab;
+
+  // Update sort icons
+  ['apanha', 'pulmao'].forEach(t => {
+    const cols = t === 'apanha' ? ['ENDER','SEQPRODUTO','DESCCOMPLETA'] : ['ENDER','SEQPRODUTO','DESCRICAO','STATUS'];
+    cols.forEach(c => {
+      const el = document.getElementById(`sort-${t}-${c}`);
+      if (!el) return;
+      const th = el.parentElement;
+      if (state.sortCol[t] === c) {
+        el.textContent = state.sortDir[t] === 1 ? '↑' : '↓';
+        th.classList.add('sorted');
+      } else {
+        el.textContent = '↕';
+        th.classList.remove('sorted');
+      }
+    });
+  });
+
+  if (tab === 'apanha') renderApanha();
+  else renderPulmao();
+}
+
+function renderApanha() {
+  const filtered = filterData(state.apanha, 'apanha');
+  const sorted = sortedData(filtered, 'apanha');
+  const tbody = document.getElementById('tbody-apanha');
+  const empty = document.getElementById('empty-apanha');
+
+  document.getElementById('count-badge').innerHTML = `<b>${sorted.length}</b> registros`;
+
+  if (sorted.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = sorted.map(r => `
+    <tr>
+      <td class="ender">${esc(r.ENDER)}</td>
+      <td class="seq">${r.SEQPRODUTO}</td>
+      <td class="desc" title="${esc(r.DESCCOMPLETA)}">${esc(r.DESCCOMPLETA)}</td>
+    </tr>`).join('');
+}
+
+function renderPulmao() {
+  const filtered = filterData(state.pulmao, 'pulmao');
+  const sorted = sortedData(filtered, 'pulmao');
+  const tbody = document.getElementById('tbody-pulmao');
+  const empty = document.getElementById('empty-pulmao');
+
+  document.getElementById('count-badge').innerHTML = `<b>${sorted.length}</b> registros`;
+
+  if (sorted.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = sorted.map(r => {
+    const st = (r.STATUS || '').toLowerCase();
+    const cls = st.includes('ocup') ? 'status-ocupado' : st.includes('bloq') ? 'status-bloqueado' : 'status-inativo';
+    return `<tr>
+      <td class="ender">${esc(r.ENDER)}</td>
+      <td class="seq">${r.SEQPRODUTO}</td>
+      <td class="desc" title="${esc(r.DESCRICAO)}">${esc(r.DESCRICAO)}</td>
+      <td><span class="status-badge ${cls}">${esc(r.STATUS || '—')}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ========== MODAL ==========
+function openModal() {
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  uploadedFiles = { ruas: null, pulmao: null };
+  ['ruas','pulmao'].forEach(k => {
+    document.getElementById(`fname-${k}`).textContent = 'Nenhum arquivo selecionado';
+    document.getElementById(`fname-${k}`).classList.remove('loaded');
+  });
+}
+
+function handleFile(key, input) {
+  const file = input.files[0];
+  if (!file) return;
+  uploadedFiles[key] = file;
+  const el = document.getElementById(`fname-${key}`);
+  el.textContent = '✓ ' + file.name;
+  el.classList.add('loaded');
+}
+
+function readFileText(file) {
+  return new Promise((resolve, reject) => {
+    // Try UTF-8 first, fallback to latin1
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = reject;
+    r.readAsText(file, 'windows-1252');
+  });
+}
+
+function parseCSV(text, sep=';') {
+  const lines = text.replace(/\r/g, '').split('\n').filter(l => l.trim());
+  const headers = lines[0].split(sep).map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const vals = line.split(sep);
+    const obj = {};
+    headers.forEach((h, i) => { obj[h] = (vals[i] || '').trim(); });
+    return obj;
+  });
+}
+
+function buildEnder(row) {
+  const pad = (v, n) => String(v || '0').padStart(n, '0');
+  return `${pad(row.CODDEPOSITO,2)}.${pad(row.CODRUA,3)}.${pad(row.NROPREDIO,3)}.${pad(row.NROAPARTAMENTO,2)}.${pad(row.NROSALA,5)}`;
+}
+
+async function processFiles() {
+  if (!uploadedFiles.ruas && !uploadedFiles.pulmao) {
+    alert('Selecione ao menos um arquivo para atualizar.');
+    return;
+  }
+
+  try {
+    // Usa o conjunto oficial de produtos ME
+    const meSet = ME_CODES;
+
+    // Read Ruas_fixas (Apanha)
+    let newApanha = state.apanha;
+    if (uploadedFiles.ruas) {
+      const ruasText = await readFileText(uploadedFiles.ruas);
+      const ruasRows = parseCSV(ruasText, ';');
+      newApanha = ruasRows
+        .filter(r => meSet.has(parseInt(r.SEQPRODUTO)))
+        .map(r => ({
+          ENDER: r.ENDER,
+          SEQPRODUTO: parseInt(r.SEQPRODUTO),
+          DESCCOMPLETA: r.DESCCOMPLETA.replace(/-\s*$/, '').trim()
+        }));
+    }
+
+    // Read Estoque_pulmao
+    let newPulmao = state.pulmao;
+    if (uploadedFiles.pulmao) {
+      const pulmaoText = await readFileText(uploadedFiles.pulmao);
+      const pulmaoRows = parseCSV(pulmaoText, ';');
+      newPulmao = pulmaoRows
+        .filter(r => r.SEQPRODUTO && meSet.has(parseInt(r.SEQPRODUTO)))
+        .map(r => ({
+          ENDER: buildEnder(r),
+          SEQPRODUTO: parseInt(r.SEQPRODUTO),
+          DESCRICAO: (r.DESCRICAO || '').replace(/-\s*$/, '').trim(),
+          STATUS: r.STATUS || ''
+        }));
+    }
+
+    state.apanha = newApanha;
+    state.pulmao = newPulmao;
+
+    closeModal();
+    render();
+
+    const msg = `✓ Atualizado com sucesso!\nApanha: ${newApanha.length} itens\nPulmão: ${newPulmao.length} itens`;
+    alert(msg);
+  } catch(e) {
+    alert('Erro ao processar arquivos: ' + e.message);
+    console.error(e);
+  }
+}
+
+// ========== EXPORTAR PDF ==========
+function exportPDF() {
+  const { jsPDF } = window.jspdf;
+  const tab = state.currentTab;
+  const isApanha = tab === 'apanha';
+  const dados = sortedData(filterData(isApanha ? state.apanha : state.pulmao, tab), tab);
+  const now = new Date().toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  const titulo = isApanha ? 'APANHA — ME CD 107' : 'PULMÃO — ME CD 107';
+  const filtroInfo = state.filter ? `  |  Filtro: "${state.filter}"` : '';
+
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+  // Cabeçalho
+  doc.setFillColor(30, 35, 53);
+  doc.rect(0, 0, 297, 20, 'F');
+  doc.setTextColor(isApanha ? 0 : 255, isApanha ? 200 : 107, isApanha ? 255 : 43);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text(titulo, 10, 13);
+  doc.setTextColor(160, 170, 190);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`${dados.length} registros${filtroInfo}   |   Emitido em ${now}`, 10, 18);
+
+  // Colunas e linhas
+  let head, body;
+  if (isApanha) {
+    head = [['ENDEREÇO', 'CÓD. PRODUTO', 'DESCRIÇÃO']];
+    body = dados.map(r => [r.ENDER, r.SEQPRODUTO, r.DESCCOMPLETA]);
+  } else {
+    head = [['ENDEREÇO', 'CÓD. PRODUTO', 'DESCRIÇÃO', 'STATUS']];
+    body = dados.map(r => [r.ENDER, r.SEQPRODUTO, r.DESCRICAO, r.STATUS || '—']);
+  }
+
+  doc.autoTable({
+    startY: 22,
+    head,
+    body,
+    theme: 'grid',
+    styles: { fontSize: 8, cellPadding: 2, font: 'helvetica', textColor: [30, 35, 53] },
+    headStyles: {
+      fillColor: [30, 35, 53],
+      textColor: isApanha ? [0, 200, 255] : [255, 107, 43],
+      fontStyle: 'bold',
+      fontSize: 8
+    },
+    alternateRowStyles: { fillColor: [245, 247, 250] },
+    columnStyles: isApanha
+      ? { 0: { cellWidth: 52 }, 1: { cellWidth: 28, halign: 'center' }, 2: { cellWidth: 'auto' } }
+      : { 0: { cellWidth: 52 }, 1: { cellWidth: 28, halign: 'center' }, 2: { cellWidth: 'auto' }, 3: { cellWidth: 24, halign: 'center' } },
+    didDrawPage: (data) => {
+      // Rodapé com número de página
+      const pageCount = doc.internal.getNumberOfPages();
+      doc.setFontSize(7);
+      doc.setTextColor(150);
+      doc.text(`Página ${data.pageNumber} de ${pageCount}`, 287, 207, { align: 'right' });
+    }
+  });
+
+  const nomeArquivo = `ME_CD107_${isApanha ? 'APANHA' : 'PULMAO'}_${new Date().toISOString().slice(0,10)}.pdf`;
+  doc.save(nomeArquivo);
+}
+
+init();
+</script>
+</body>
+</html>
